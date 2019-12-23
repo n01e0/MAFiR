@@ -1,3 +1,5 @@
+extern crate libc;
+
 struct BrainFuck {
     code: String,
     c_index: usize,
@@ -15,42 +17,47 @@ impl BrainFuck {
         }; 
         return ret;
     }
+
+    fn getcur(&self) -> char {
+        self.code.clone().chars().nth(self.c_index).unwrap()   
+    }
+
     fn dump(&self) {
+        println!();
         println!("-8<-----8<----8<-----");
         println!("program end");
         println!("dump buffer");
         print!("+-----+");
         let len = self.buf.len();
         for _ in 0..len {
-            print!("----+");
+            print!("------+");
         }
-        println!("");
+        println!();
     
-        print!("index |");
+        print!("|index|");
         for i in 0..len {
-            print!("{:>04}|", i);
+            print!("0x{:x>04}|", i);
         }
-        println!("");
+        println!();
     
         print!("+-----+");
         for _ in 0..len {
-            print!("----+");
+            print!("------+");
         }
-        println!("");
+        println!();
     
-        print!("val   |");
+        print!("|value|");
         for cur in self.buf.clone() {
-            print!("{:>04}|", cur);
+            print!("0x{:x>04}|", cur);
         }
-        println!("");
+        println!();
     
         print!("+-----+");
         for _ in 0..len {
-            print!("----+");
+            print!("------+");
         }
-        println!("");
+        println!();
     }
-
 }
 
 pub fn fuck(code: String) {
@@ -64,7 +71,7 @@ pub fn fuck(code: String) {
             fucked.dump();
             std::process::exit(0);
         }
-        let cur = fucked.code.clone().chars().nth(fucked.c_index).unwrap();
+        let cur = fucked.getcur();
         match cur {
             '+' => {
                 fucked.buf[fucked.b_index] += 1;
@@ -143,9 +150,8 @@ fn bf_loop_gool(fucked: &mut BrainFuck) {
 }
 
 fn getc(buf: &mut u8) {
-    let mut input = String::new();
-    std::io::stdin().read_line(&mut input)
-        .ok().expect("Failed to read line.");
-    *buf = input.bytes().nth(0)
-        .unwrap_or('\n' as u8);
+    unsafe {
+        let tmp: libc::c_int = libc::getchar();
+        *buf = tmp as u8;
+    }
 }
