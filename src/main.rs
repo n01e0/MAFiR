@@ -8,6 +8,40 @@ struct BrainFuck<'a> {
     b_index: usize
 }
 
+fn dump(buf: Vec<u8>) {
+    println!("-8<-----8<----8<-----");
+    println!("program end");
+    println!("dump buffer");
+    print!("+-----+");
+    for _ in 0..buf.len() {
+        print!("----+");
+    }
+    println!("");
+
+    print!("index |");
+    for i in 0..buf.len() {
+        print!("{:>04}|", i);
+    }
+    println!("");
+
+    print!("+-----+");
+    for _ in 0..buf.len() {
+        print!("----+");
+    }
+    println!("");
+
+    print!("val   |");
+    for cur in buf.clone() {
+        print!("{:>04}|", cur);
+    }
+    println!("");
+
+    print!("+-----+");
+    for _ in 0..buf.len() {
+        print!("----+");
+    }
+    println!("");
+}
 
 fn main() {
     let args: Vec<String> = env::args().collect();
@@ -35,6 +69,7 @@ fn fuck(code: String) {
 
     loop {
         if fucked.c_index == max {
+            dump(fucked.buf);
             std::process::exit(0);
         }
         let cur = fucked.code.clone().nth(fucked.c_index).unwrap();
@@ -48,7 +83,9 @@ fn fuck(code: String) {
                 fucked.c_index += 1;
             },
             '>' => {
-                fucked.buf.push(0);
+                if fucked.buf[fucked.b_index] == *fucked.buf.last().unwrap() {
+                    fucked.buf.push(0);
+                }
                 fucked.b_index += 1;
                 fucked.c_index += 1;
             },
