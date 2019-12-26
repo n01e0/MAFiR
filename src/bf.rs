@@ -2,6 +2,11 @@ extern crate libc;
 extern crate colored;
 
 use colored::*;
+use std::fs;
+
+pub struct Flg {
+    pub dump: bool
+}
 
 struct BrainFuck {
     code: String,
@@ -153,13 +158,27 @@ impl BrainFuck {
     }
 }
 
-pub fn fuck(code: String) {
+pub fn machine(path: String, flg: Flg) {
+    let file = fs::read_to_string(path);
+
+    match file {
+        Ok(path) => fuck(path, flg),
+        Err(err) => eprintln!("{}", err)
+    }
+}
+
+fn fuck(code: String, flg: Flg) {
+    if flg.dump {
+        println!("dump ok");
+    }
     let _eof: char = 0 as char;
     let mut fucked = BrainFuck::new(code);
 
     loop {
         if fucked.offset_reached_length() {
-            fucked.dump();
+            if flg.dump  {
+                fucked.dump();
+            }
             break;
         }
         match fucked.getcur() {

@@ -1,15 +1,30 @@
 mod bf;
+#[macro_use]
+extern crate clap;
+
+use clap::{App, Arg};
 
 fn main() {
-    let args: Vec<String> = std::env::args().collect();
-    if args.len() < 2 {
-        eprintln!("Usage: {} [source file]", args[0]);
-        std::process::exit(1);
-    }
+    let args = App::new(crate_name!())
+                .version(crate_version!())
+                .author(crate_authors!())
+                .about(crate_description!())
+            .arg(Arg::with_name("path")
+                .help("BrainFuck source file")
+                .required(true)
+            )
+            .arg(Arg::with_name("dump")
+                .help("memory dump flag")
+                .short("d")
+                .long("dump")
+            ).get_matches();
+            
 
-    let src = std::fs::read_to_string(&args[1]);
-    match src {
-        Ok(code) => bf::fuck(code),
-        Err(err) => eprintln!("{}", err),
+    let flg = bf::Flg {
+        dump: args.is_present("dump")
+    };
+
+    if let Some(path) = args.value_of("path") {
+        bf::machine(path.to_string(), flg);
     }
 }
